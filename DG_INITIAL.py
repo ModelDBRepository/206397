@@ -1,5 +1,5 @@
 #==============================================================================
-# Network of Dentate gyrus based on Chavlis et al, Hippocampus 2016
+# Network of Dentate gyrus based on Chavlis et al, Hippocampus 2017
 #==============================================================================
 
 # CONTROL MODEL
@@ -13,10 +13,12 @@ from brian.library.IF import *
 import numpy as np
 import time
 
-overlap = ['80']
+overlap = '80'
 trial_i = [1]
 Trial = trial_i[0]
 trial = 1
+
+maindir=os.getcwd()
 
 # Initial pattern
 scale_fac = 4
@@ -28,9 +30,9 @@ N_hipp    =  10 * scale_fac
 d_input   = 0.10 # active input density
 
 # Active pattern of neurons
-os.chdir('input_patterns/scale_'+str(scale_fac)+'/d_input_0.1')
-active = list(np.load('active_pattern_'+str(Trial)+'.npy'))
-inactive = [x for x in xrange(N_input) if x not in active]
+path = 'input_patterns/scale_'+str(scale_fac)+'/d_input_0.1/'
+active_pattern = list(np.load(path+'active_pattern_'+str(Trial)+'.npy'))
+inactive = [x for x in xrange(N_input) if x not in active_pattern]
 
 reinit(states = True)
 clear(erase = True, all = True)
@@ -86,13 +88,12 @@ g_gaba_hg = 0.12 * nS
 
 #=======================================================================================================================
 # INPUT CELLS (ENTORHINAL CORTEX)
-os.chdir('../../..')
 from poisson_input import *
 rate = 45*Hz
 simtime = 1000*ms
 t1 = 300 * ms
 t2 =  10 * ms
-spiketimes = poisson_input(active, N_input, rate, simtime, t1, t2)
+spiketimes = poisson_input(active_pattern, N_input, rate, simtime, t1, t2)
 Input_ec = SpikeGeneratorGroup(N_input, spiketimes)
 #=======================================================================================================================
 
@@ -662,14 +663,20 @@ run(t1+simtime+t2, report='text', report_period = 10 *second)
 sim_duration = time.time() - start_timestamp
 print "\nDuration of simulation: " + str(sim_duration)
 
-os.chdir('results/Control')
+if not os.path.exists(maindir+'/results/'):
+    os.makedirs(maindir+'/results/')
+
+if not os.path.exists(maindir+'/results/Control'):
+    os.makedirs(maindir+'/results/Control')
+os.chdir(maindir+'/results/Control')
+
 output_pattern = []
 for spikes in xrange(N_granule):
     output_pattern.append(len(G_S[spikes]))
-np.save('output_pattern0d_'+overlap[i_save]+'_'+str(trial_i[0])+'_'+str(trial), output_pattern)
+np.save('output_pattern0d_'+overlap+'_'+str(trial_i[0])+'_'+str(trial), output_pattern)
 
 input_pattern = []
 for spikes_i in xrange(len(Input_ec)):
     input_pattern.append(len(I_S[spikes_i]))
-np.save('input_pattern0d_'+overlap[i_save]+'_'+str(trial_i[0])+'_'+str(trial), input_pattern)
+np.save('input_pattern0d_'+overlap+'_'+str(trial_i[0])+'_'+str(trial), input_pattern)
 

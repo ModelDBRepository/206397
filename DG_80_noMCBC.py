@@ -1,11 +1,11 @@
 #==============================================================================
-# Network of Dentate gyrus based on Chavlis et al, Hippocampus 2016
-#==============================================================================
+# Network of Dentate gyrus based on Chavlis et al, Hippocampus 2017
 
 # This is a MC to BC delete model with 80% overlap in the input pattern!
 # All Mossy Cells to Basket Cells connections are commented out
-###############################################################################
+#==============================================================================
 
+###############################################################################
 
 import os
 from brian import *
@@ -21,6 +21,9 @@ overlap = '80'
 trial = 2
 trial_i = [1]
 Trial = trial_i[0]
+
+maindir=os.getcwd()
+
 # Initial pattern
 scale_fac = 4
 N_input   = 100 * scale_fac
@@ -34,8 +37,8 @@ reinit(states = True)
 clear(erase   = True, all = True)
 
 # Active pattern of neurons
-os.chdir('input_patterns/scale_'+str(scale_fac)+'/d_input_0.1')
-active_pattern = list(np.load('active_pattern_'+str(Trial)+'.npy'))
+path = 'input_patterns/scale_'+str(scale_fac)+'/d_input_0.1/'
+active_pattern = list(np.load(path+'active_pattern_'+str(Trial)+'.npy'))
 
 n = int( round((1 - int(overlap)*0.01)*d_input*N_input) )
 
@@ -98,7 +101,6 @@ g_gaba_hg = 0.12 * nS
 
 #=======================================================================================================================
 # INPUT CELLS (ENTORHINAL CORTEX)
-os.chdir('../../..')
 from poisson_input import *
 rate = 45*Hz
 simtime = 1000*ms
@@ -672,7 +674,13 @@ run(t1+simtime+t2, report='text', report_period = 10 *second)
 sim_duration = time.time() - start_timestamp
 print "\nDuration of simulation: " + str(sim_duration)
 
-os.chdir('MC_to_IN_delete')
+if not os.path.exists(maindir+'/results/'):
+    os.makedirs(maindir+'/results/')
+
+if not os.path.exists(maindir+'/results/MC_to_IN_delete'):
+    os.makedirs(maindir+'/results/MC_to_IN_delete')
+os.chdir(maindir+'/results/MC_to_IN_delete')
+
 output_pattern = []
 for spikes in xrange(N_granule):
     output_pattern.append(len(G_S[spikes]))

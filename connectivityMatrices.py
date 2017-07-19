@@ -46,7 +46,6 @@ from brian import *
 from brian.library.ionic_currents import *
 from brian.library.IF import *
 import time
-import math
 import os
 
 print "\nBuilding the Network... "
@@ -375,7 +374,10 @@ hipp.vm = El_h
 #=======================================================================================================================
 # ***************************************  C  O  N  N  E  C  T  I  O  N  S  ********************************************
 #=======================================================================================================================
-os.chdir('/home/cluster/spiros/Documents/CollaborationNathanAttila/NeuronPaper/ConnectivityMatrices/scale_'+str(scale_fac))
+if not os.path.exists('ConnectivityMatrices/scale_'+str(scale_fac)):
+    os.makedirs('ConnectivityMatrices/scale_'+str(scale_fac))
+os.chdir('ConnectivityMatrices/scale_'+str(scale_fac))
+
 #  EC CELLS ----> GRANULE CELLS
 # Synapses at 1st branch
 nmda_eqs = '''
